@@ -1,11 +1,9 @@
-import { galleryItems } from "./gallery-items.js";
+import { galleryItems } from './gallery-items.js';
 // Change code below this line
 
-console.log(galleryItems);
+const galleryEl = document.querySelector('div.gallery');
 
-const galleryEl = document.querySelector("div.gallery");
-
-const createGallery = (items) => {
+const createGallery = items => {
   const createImagesEl = items
     .reduce((arr, { original, preview, description }) => {
       arr.push(
@@ -13,26 +11,40 @@ const createGallery = (items) => {
       );
       return arr;
     }, [])
-    .join("");
+    .join('');
 
-  galleryEl.insertAdjacentHTML("afterBegin", createImagesEl);
+  galleryEl.insertAdjacentHTML('afterBegin', createImagesEl);
 };
 
 createGallery(galleryItems);
 
-const linkToggleEvent = (event) => {
+const linkToggleEvent = event => {
   event.preventDefault();
-  if (event.target.nodeName !== "IMG") {
+  if (event.target.nodeName !== 'IMG') {
     return;
   }
 
   const instance = basicLightbox.create(
     `
       <img src="${event.target.dataset.source}" width="800" height="600">
-  `
+  `,
+    {
+      onShow: instance => {
+        document.addEventListener('keydown', onEscapeKeyToggle);
+      },
+      onClose: instance => {
+        document.removeEventListener('keydown', onEscapeKeyToggle);
+      },
+    }
   );
-
   instance.show();
+
+  function onEscapeKeyToggle(event) {
+    if (event.code !== 'Escape') {
+      return;
+    }
+    instance.close();
+  }
 };
 
-galleryEl.addEventListener("click", linkToggleEvent);
+galleryEl.addEventListener('click', linkToggleEvent);
